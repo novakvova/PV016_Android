@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Sim"
         tools:targetApi="31">
         <activity
+            android:name=".ChangeImageActivity"
+            android:exported="false" />
+        <activity
             android:name=".category.CategoryCreateActivity"
             android:exported="false" />
         <activity
