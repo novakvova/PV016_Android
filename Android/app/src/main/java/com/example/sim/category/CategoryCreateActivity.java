@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,9 +20,13 @@ import com.example.sim.R;
 import com.example.sim.dto.category.CategoryCreateDTO;
 import com.example.sim.service.CategoryNetwork;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,6 +41,8 @@ public class CategoryCreateActivity extends BaseActivity {
     TextInputEditText txtCategoryPriority;
     TextInputEditText txtCategoryDescription;
 
+    TextInputLayout tfCategoryName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +51,49 @@ public class CategoryCreateActivity extends BaseActivity {
         txtCategoryName=findViewById(R.id.txtCategoryName);
         txtCategoryPriority=findViewById(R.id.txtCategoryPriority);
         txtCategoryDescription=findViewById(R.id.txtCategoryDescription);
+
+        tfCategoryName = findViewById(R.id.tfCategoryName);
+
+        validationName(txtCategoryName);
+    }
+
+    private void validationName(TextInputEditText input) {
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String name = txtCategoryName.getText().toString();
+                if(name.isEmpty()) {
+                    tfCategoryName.setError("Вкажіть назву");
+                }
+                else {
+                    tfCategoryName.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+    }
+
+    private boolean validation() {
+        boolean isValid=true;
+        String name = txtCategoryName.getText().toString();
+        if(name.isEmpty()) {
+            tfCategoryName.setError("Вкажіть назву");
+            isValid=false;
+        }
+        else {
+            tfCategoryName.setError("");
+        }
+
+        return isValid;
     }
 
     private String uriGetBase64(Uri uri) {
@@ -74,6 +125,8 @@ public class CategoryCreateActivity extends BaseActivity {
 
     //Додавання категорії - відправка на сервер даних
     public void onClickCreateCategory(View view) {
+        if(!validation())
+            return;
         CategoryCreateDTO model = new CategoryCreateDTO();
         model.setName(txtCategoryName.getText().toString());
         model.setPriority(Integer.parseInt(txtCategoryPriority.getText().toString()));
