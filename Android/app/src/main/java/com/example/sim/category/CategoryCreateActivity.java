@@ -12,6 +12,7 @@ import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.sim.BaseActivity;
 import com.example.sim.ChangeImageActivity;
@@ -19,6 +20,7 @@ import com.example.sim.MainActivity;
 import com.example.sim.R;
 import com.example.sim.dto.category.CategoryCreateDTO;
 import com.example.sim.service.CategoryNetwork;
+import com.example.sim.utils.CommonUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -34,7 +36,7 @@ import retrofit2.Response;
 
 public class CategoryCreateActivity extends BaseActivity {
 
-    private static int SELECT_IMAGE_RESULT=300;
+    private static int SELECT_IMAGE_RESULT = 300;
     Uri uri = null;
     ImageView IVPreviewImage;
     TextInputEditText txtCategoryName;
@@ -42,36 +44,85 @@ public class CategoryCreateActivity extends BaseActivity {
     TextInputEditText txtCategoryDescription;
 
     TextInputLayout tfCategoryName;
+    TextInputLayout tfCategoryPriority;
+    TextInputLayout tfCategoryDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_create);
-        IVPreviewImage=findViewById(R.id.IVPreviewImage);
-        txtCategoryName=findViewById(R.id.txtCategoryName);
-        txtCategoryPriority=findViewById(R.id.txtCategoryPriority);
-        txtCategoryDescription=findViewById(R.id.txtCategoryDescription);
+        IVPreviewImage = findViewById(R.id.IVPreviewImage);
+        txtCategoryName = findViewById(R.id.txtCategoryName);
+        txtCategoryPriority = findViewById(R.id.txtCategoryPriority);
+        txtCategoryDescription = findViewById(R.id.txtCategoryDescription);
 
         tfCategoryName = findViewById(R.id.tfCategoryName);
-
-        validationName(txtCategoryName);
+        tfCategoryPriority = findViewById(R.id.tfCategoryPriority);
+        tfCategoryDescription = findViewById(R.id.tfCategoryDescription);
+        setupError();
     }
 
-    private void validationName(TextInputEditText input) {
-        input.addTextChangedListener(new TextWatcher() {
+    private void setupError() {
+        txtCategoryName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String name = txtCategoryName.getText().toString();
-                if(name.isEmpty()) {
-                    tfCategoryName.setError("Вкажіть назву");
+            public void onTextChanged(CharSequence text, int i, int i1, int i2) {
+                if (text.length() <= 2) {
+                    tfCategoryName.setError(getString(R.string.category_name_required));
+                } else {
+                    tfCategoryName.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        txtCategoryPriority.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence text, int i, int i1, int i2) {
+                int number = 0;
+                try {
+                    number = Integer.parseInt(text.toString());
+                } catch (Exception ex) {
+                }
+                if (number <= 0) {
+                    tfCategoryPriority.setError(getString(R.string.category_priority_required));
                 }
                 else {
-                    tfCategoryName.setError("");
+                    tfCategoryPriority.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        txtCategoryDescription.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence text, int i, int i1, int i2) {
+                if (text.length() <= 2) {
+                    tfCategoryDescription.setError(getString(R.string.category_description_required));
+                } else {
+                    tfCategoryDescription.setError("");
                 }
             }
 
@@ -83,14 +134,30 @@ public class CategoryCreateActivity extends BaseActivity {
     }
 
     private boolean validation() {
-        boolean isValid=true;
+        boolean isValid = true;
         String name = txtCategoryName.getText().toString();
-        if(name.isEmpty()) {
-            tfCategoryName.setError("Вкажіть назву");
-            isValid=false;
+        if (name.isEmpty() || name.length() <= 2) {
+            tfCategoryName.setError(getString(R.string.category_name_required));
+            isValid = false;
         }
-        else {
-            tfCategoryName.setError("");
+        int number = 0;
+        try {
+            number = Integer.parseInt(txtCategoryPriority.getText().toString());
+        } catch (Exception ex) {
+        }
+        if (number <= 0) {
+            tfCategoryPriority.setError(getString(R.string.category_priority_required));
+            isValid = false;
+        }
+
+        String description = txtCategoryDescription.getText().toString();
+        if (description.isEmpty() || description.length() <= 2) {
+            tfCategoryDescription.setError(getString(R.string.category_description_required));
+            isValid = false;
+        }
+        if(uri==null) {
+            isValid=false;
+            Toast.makeText(this, "Оберіть фото!", Toast.LENGTH_LONG).show();
         }
 
         return isValid;
@@ -98,10 +165,10 @@ public class CategoryCreateActivity extends BaseActivity {
 
     private String uriGetBase64(Uri uri) {
         try {
-            Bitmap bitmap=null;
+            Bitmap bitmap = null;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -109,14 +176,14 @@ public class CategoryCreateActivity extends BaseActivity {
             byte[] byteArr = bytes.toByteArray();
             return Base64.encodeToString(byteArr, Base64.DEFAULT);
 
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             return null;
         }
     }
+
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode,data);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SELECT_IMAGE_RESULT) {
             uri = (Uri) data.getParcelableExtra("croppedUri");
             IVPreviewImage.setImageURI(uri);
@@ -125,13 +192,14 @@ public class CategoryCreateActivity extends BaseActivity {
 
     //Додавання категорії - відправка на сервер даних
     public void onClickCreateCategory(View view) {
-        if(!validation())
+        if (!validation())
             return;
         CategoryCreateDTO model = new CategoryCreateDTO();
         model.setName(txtCategoryName.getText().toString());
         model.setPriority(Integer.parseInt(txtCategoryPriority.getText().toString()));
         model.setDescription(txtCategoryDescription.getText().toString());
         model.setImageBase64(uriGetBase64(uri));
+        CommonUtils.showLoading();
         CategoryNetwork.getInstance()
                 .getJsonApi()
                 .create(model)
@@ -141,11 +209,12 @@ public class CategoryCreateActivity extends BaseActivity {
                         Intent intent = new Intent(CategoryCreateActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
+                        CommonUtils.hideLoading();
                     }
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-
+                        CommonUtils.hideLoading();
                     }
                 });
     }

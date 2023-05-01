@@ -24,6 +24,7 @@ namespace Sim23.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> Get()
         {
+            Thread.Sleep(1000);
             var model = await _appEFContext.Categories
                 .Where(x=>x.IsDeleted==false)
                 .OrderBy(x=>x.Priority)
@@ -31,6 +32,18 @@ namespace Sim23.Controllers
                 .ToListAsync();
            
             return Ok(model);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByUd(int id)
+        {
+            var category = await _appEFContext.Categories
+                .Where(x => x.IsDeleted == false)
+                .SingleOrDefaultAsync(x=>x.Id==id);
+            if (category is null)
+                return NotFound();
+
+            return Ok(_mapper.Map<CategoryItemViewModel>(category));
         }
 
         [HttpPost("create")]
@@ -49,6 +62,39 @@ namespace Sim23.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
-
+        [HttpPut("update")]
+        public async Task<IActionResult> Put([FromBody] CategoryUpdateeItemVM model)
+        {
+            var cat = await _appEFContext.Categories.FindAsync(model.Id);
+            if (cat == null)
+                return NotFound();
+            else
+            {
+                cat.Name = model.Name;
+                cat.Description = model.Description;
+                cat.Priority = model.Priority;
+                if (!string.IsNullOrEmpty(model.ImageBase64))
+                {
+                    ImageWorker.RemoveImage(cat.Image);
+                    cat.Image = ImageWorker.SaveImage(model.ImageBase64);
+                }
+                _appEFContext.Update(cat);
+                _appEFContext.SaveChanges();
+            }
+            return Ok();
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var category = await _appEFContext.Categories.FindAsync(id);
+            if (category is null)
+                return NotFound();
+            else
+            {
+                category.IsDeleted = true;
+                _appEFContext.SaveChanges();
+                return Ok();
+            }
+        }
     }
 }

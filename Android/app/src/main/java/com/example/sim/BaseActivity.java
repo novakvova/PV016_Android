@@ -8,8 +8,13 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.sim.category.CategoryCreateActivity;
+import com.example.sim.utils.CommonUtils;
 
 public class BaseActivity extends AppCompatActivity {
+
+    public BaseActivity() {
+        CommonUtils.setContext(this);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
