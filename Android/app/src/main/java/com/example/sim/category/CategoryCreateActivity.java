@@ -1,7 +1,5 @@
 package com.example.sim.category;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -19,16 +17,13 @@ import com.example.sim.ChangeImageActivity;
 import com.example.sim.MainActivity;
 import com.example.sim.R;
 import com.example.sim.dto.category.CategoryCreateDTO;
-import com.example.sim.service.CategoryNetwork;
+import com.example.sim.service.ApplicationNetwork;
 import com.example.sim.utils.CommonUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -200,7 +195,7 @@ public class CategoryCreateActivity extends BaseActivity {
         model.setDescription(txtCategoryDescription.getText().toString());
         model.setImageBase64(uriGetBase64(uri));
         CommonUtils.showLoading();
-        CategoryNetwork.getInstance()
+        ApplicationNetwork.getInstance()
                 .getJsonApi()
                 .create(model)
                 .enqueue(new Callback<Void>() {

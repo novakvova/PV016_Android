@@ -21,7 +21,7 @@ namespace Sim23.Controllers
             _userManager = userManager;
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null)
@@ -37,7 +37,7 @@ namespace Sim23.Controllers
             return BadRequest();
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromForm] RegisterUserViewModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterUserViewModel model)
         {
 
             string imageName = String.Empty;

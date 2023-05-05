@@ -10,9 +10,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.sim.category.CategoriesAdapter;
-import com.example.sim.category.OnItemClickListener;
 import com.example.sim.dto.category.CategoryItemDTO;
-import com.example.sim.service.CategoryNetwork;
+import com.example.sim.service.ApplicationNetwork;
 import com.example.sim.utils.CommonUtils;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class MainActivity extends BaseActivity {
 
     void requestServer() {
         CommonUtils.showLoading();
-        CategoryNetwork
+        ApplicationNetwork
                 .getInstance()
                 .getJsonApi()
                 .list()
