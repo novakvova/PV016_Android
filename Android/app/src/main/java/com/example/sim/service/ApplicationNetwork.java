@@ -1,6 +1,7 @@
 package com.example.sim.service;
 
 import com.example.sim.contants.Urls;
+import com.example.sim.interceptors.JWTInterceptor;
 import com.example.sim.network.AccountApi;
 import com.example.sim.network.CategoriesApi;
 
@@ -19,6 +20,7 @@ public class ApplicationNetwork {
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(20, TimeUnit.SECONDS)
+                .addInterceptor(new JWTInterceptor())
                 .build();
         retrofit = new Retrofit.Builder()
                 .client(httpClient)
