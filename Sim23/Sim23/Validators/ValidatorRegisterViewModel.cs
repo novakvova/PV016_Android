@@ -31,7 +31,7 @@ namespace Sim23.Validators
                 .NotEmpty().WithName("SecondName").WithMessage("Поле прізвище є обов'язковим!");
 
             RuleFor(x => x.ImageBase64)
-                .NotEmpty().WithName("ImageBase64").WithMessage("Поле телефон є обов'язковим!");
+                .NotEmpty().WithName("ImageBase64").WithMessage("Поле фото є обов'язковим!");
 
 
 
