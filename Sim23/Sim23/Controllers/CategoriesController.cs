@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sim23.Data;
 using Sim23.Data.Entites;
+using Sim23.Data.Entites.Identity;
 using Sim23.Helpers;
 using Sim23.Models;
 
@@ -11,22 +14,29 @@ namespace Sim23.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly AppEFContext _appEFContext;
+        private readonly UserManager<UserEntity> _userManager;
 
-        public CategoriesController(IMapper mapper, AppEFContext appEFContext)
+        public CategoriesController(IMapper mapper, AppEFContext appEFContext,
+            UserManager<UserEntity> userManager)
         {
             _mapper = mapper;
             _appEFContext = appEFContext;
+            _userManager = userManager;
         }
         [HttpGet("list")]
         public async Task<IActionResult> Get()
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             Thread.Sleep(1000);
             var model = await _appEFContext.Categories
                 .Where(x=>x.IsDeleted==false)
+                .Where(x => x.UserId == user.Id)
                 .OrderBy(x=>x.Priority)
                 .Select(x=>_mapper.Map<CategoryItemViewModel>(x))
                 .ToListAsync();
