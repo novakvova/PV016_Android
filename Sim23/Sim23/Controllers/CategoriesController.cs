@@ -47,9 +47,11 @@ namespace Sim23.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByUd(int id)
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             var category = await _appEFContext.Categories
                 .Where(x => x.IsDeleted == false)
-                .SingleOrDefaultAsync(x=>x.Id==id);
+                .SingleOrDefaultAsync(x=>x.Id==id && x.UserId==user.Id);
             if (category is null)
                 return NotFound();
 
@@ -59,9 +61,12 @@ namespace Sim23.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CategoryCreateItemVM model)
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             try
             {
                 var cat = _mapper.Map<CategoryEntity>(model);
+                cat.UserId = user.Id;
                 cat.Image = ImageWorker.SaveImage(model.ImageBase64);
                 await _appEFContext.Categories.AddAsync(cat);
                 await _appEFContext.SaveChangesAsync();
@@ -75,7 +80,11 @@ namespace Sim23.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> Put([FromBody] CategoryUpdateeItemVM model)
         {
-            var cat = await _appEFContext.Categories.FindAsync(model.Id);
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
+            var cat = await _appEFContext.Categories
+                                    .Where(x => x.IsDeleted == false)
+                                    .SingleOrDefaultAsync(x => x.Id == model.Id && x.UserId == user.Id);
             if (cat == null)
                 return NotFound();
             else
@@ -96,7 +105,11 @@ namespace Sim23.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var category = await _appEFContext.Categories.FindAsync(id);
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
+            var category = await _appEFContext.Categories
+                                    .Where(x => x.IsDeleted == false)
+                                    .SingleOrDefaultAsync(x => x.Id == id && x.UserId == user.Id);
             if (category is null)
                 return NotFound();
             else
