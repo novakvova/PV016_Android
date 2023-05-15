@@ -67,6 +67,17 @@ public class BaseActivity extends AppCompatActivity {
                     System.out.println("---Problem "+ ex.getMessage());
                 }
                 return true;
+            case R.id.m_logout:
+                try {
+                    HomeApplication.getInstance().deleteToken();
+                    intent = new Intent(BaseActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                catch(Exception ex) {
+                    System.out.println("Problem "+ ex.getMessage());
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

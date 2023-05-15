@@ -36,6 +36,13 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        if(HomeApplication.getInstance().isAuth())
+        {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         tfEmail=findViewById(R.id.tfEmail);
         tfPassword=findViewById(R.id.tfPassword);
         txtEmail=findViewById(R.id.txtEmail);
